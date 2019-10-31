@@ -13,6 +13,9 @@ hero_y:	.db  #80
 
 .include "keyboard/keyboard.s"
 
+;Declaración de constantes
+BoxWidth = 0x02 
+
 .area _CODE
 
 ;============================================
@@ -20,7 +23,6 @@ hero_y:	.db  #80
 ;DESTROYS: 
 ;============================================
 checkUserInput:
-	push bc	;para guardar el valor del tamaño del pixel
 	;/////////////////////////SE PODRÍA GUARDAR EN UN BYTE DE MEMORIA PARA NO HACER TANTOS CÁLCULOS
 	;Reads the status of keyboard and joysticks and stores it in the 10 bytes reserved as cpct_keyboardStatusBuffer
 	;Ver a que corresponde cada tecla del keyboardStatusBuffer en la documenacion de cpctelera
@@ -35,17 +37,16 @@ checkUserInput:
 	;************************************************************
 	;Return value (for Assembly, L=A=key_status) <u8> false (0, if not pressed) or true (>0, if pressed).  Take into account that true is not 1, but any non-0 number.
 	call cpct_isKeyPressed_asm 
-	pop bc
 	cp #0	;compara lo que hay en el acumuldor
 		;Cero si no se ha presionado
 	jr z, d_not_pressed
 
 		ld a, (hero_x)
 		inc a
-		add a, c 	;al final de drawhero popeamos bc para ulizar la anchura guardada en b en esta rutina
+		add a, #BoxWidth 	;al final de drawhero popeamos bc para ulizar la anchura guardada en b en esta rutina
 		cp #79		;maximo número de bytes en modo 0 (de 0 a 79)
 		jp nc, d_not_pressed
-		sub a, c
+		sub a, #BoxWidth
 		ld (hero_x), a
 	
 
@@ -103,10 +104,8 @@ drawhero:
 	ex de, hl 	;intercambia hl y de 
 	pop af 		;color elegido por el usuario
 	;ld a, #0x0F	;cyan
-	ld bc, #0x0802	;alto por ancho en pixeles 8x8
-	push bc
+	ld bc, #0x08 #BoxWidth	;alto por ancho en pixeles 8x8
 	call cpct_drawSolidBox_asm
-	pop bc
 
 ret
 

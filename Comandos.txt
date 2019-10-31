@@ -1,0 +1,34 @@
+Primeros pasos en git: 
+1.-Situarse en la carpeta donde está nuestro contenido 
+2.-Solo la primera vez hacer un git init
+3.-git add . (agregar todo)
+
+4.-git commit “nombre”
+5.-git commit -m “nombre” → primer commit
+6.-al hacer el primer commit -m te pedirá que configures el correo electrónico y el nombre
+7.- Vuelve a hacer git commit -m 
+8.- Cada vez que queramos guardar un cambio hacemos un commit (?)
+9.-Utilizar un remote add origin para conectar nuestro repositorio local con el github la url tiene que ser exactamente igual al url que creamos en el github → git remote add origin “https://github.com/...”
+10.-Hacemos el primer push → git push remote master
+
+11.-Desde el otro ordenador hacer un clone 
+
+13.-Cada vez que se modifique un archivo:
+	git status → ver cual se ha modificado
+	hacer un git add sobre ese archivos (o git add.)
+	hacer git commit -m  “mensaje”
+	hace git push origin master
+
+14.- Para actualizar el repositorio local al commit mas nuevo:
+	(git pull) → Si falla
+	Para copiarlo tal cual → git reset --hard Origin/master
+
+Comandos git:
+git branch → en que rama estoy
+git branch -a → muestra todas las ramas
+git checkout nombreDeLaRama → situarnos en una rama determinada
+
+Comandos Linux:
+ls listado de carperas y archivos
+pwd
+
