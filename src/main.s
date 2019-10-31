@@ -5,6 +5,7 @@ hero_x: .db  #39		;;define byte
 hero_y:	.db  #80
 ;Se declaran aqui las funciones de cpctelera que se van a utilizar 
 ;cpctelera symbols
+;prueba para git
 .globl cpct_drawSolidBox_asm
 .globl cpct_getScreenPtr_asm
 .globl cpct_scanKeyboard_asm
