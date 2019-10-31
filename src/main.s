@@ -5,7 +5,6 @@ hero_x: .db  #39		;;define byte
 hero_y:	.db  #80
 ;Se declaran aqui las funciones de cpctelera que se van a utilizar 
 ;cpctelera symbols
-;prueba para git
 .globl cpct_drawSolidBox_asm
 .globl cpct_getScreenPtr_asm
 .globl cpct_scanKeyboard_asm
@@ -21,30 +20,52 @@ hero_y:	.db  #80
 ;DESTROYS: 
 ;============================================
 checkUserInput:
+	push bc	;para guardar el valor del tamaño del pixel
+	;/////////////////////////SE PODRÍA GUARDAR EN UN BYTE DE MEMORIA PARA NO HACER TANTOS CÁLCULOS
 	;Reads the status of keyboard and joysticks and stores it in the 10 bytes reserved as cpct_keyboardStatusBuffer
 	;Ver a que corresponde cada tecla del keyboardStatusBuffer en la documenacion de cpctelera
 	;scan whole keyboard
 	call cpct_scanKeyboard_asm
 	;Checks if a concrete key is pressed or not.
-	;|(2B HL) key	A 16-bit value containing a Matrix-Line(1B, L) and a BitMask(1B, H).
-	;|o su equivalernte del archivo keyboard.s
+	;input HL -> se mete en HL el codigo de la tecla que queremos comprobar 
+	;en el .include "keyboard/keyboard.s tenemos las constantes de todas las teclas, por lo tanto podemos tuilizar Key_D"
+
 	;check if d is pressed
 	ld hl, #Key_D	;;equ Key_D definido en el fichero keyboard.s que hemos incluido en la parte de _DATA .include "keyboard/keyboard.s"
 	;************************************************************
 	;Return value (for Assembly, L=A=key_status) <u8> false (0, if not pressed) or true (>0, if pressed).  Take into account that true is not 1, but any non-0 number.
 	call cpct_isKeyPressed_asm 
+	pop bc
 	cp #0	;compara lo que hay en el acumuldor
-		;if D is pressed
+		;Cero si no se ha presionado
 	jr z, d_not_pressed
 
 		ld a, (hero_x)
 		inc a
+		add a, c 	;al final de drawhero popeamos bc para ulizar la anchura guardada en b en esta rutina
+		cp #79		;maximo número de bytes en modo 0 (de 0 a 79)
+		jp nc, d_not_pressed
+		sub a, c
 		ld (hero_x), a
 	
 
 
 	d_not_pressed:
-ret
+	; se repite para la letra A #key_A 
+	ld hl, #Key_A	;Constante incluida en keyboard.s
+	call cpct_isKeyPressed_asm
+	cp #0 	;si es cero no se ha presionado
+	jr z, a_not_pressed
+		ld a, (hero_x)
+		dec a
+		cp #0xFF
+		jp z, a_not_pressed	;si es menor que 0 hay acarreo por lo tanto hero_x se queda ne la misma posicion
+					;no actualizamos 
+
+		ld (hero_x), a
+
+	a_not_pressed:
+ret	;a dibujar Hero en la nueva posicion
 
 ;============================================
 ;DRAW THE HERO
@@ -83,7 +104,9 @@ drawhero:
 	pop af 		;color elegido por el usuario
 	;ld a, #0x0F	;cyan
 	ld bc, #0x0802	;alto por ancho en pixeles 8x8
+	push bc
 	call cpct_drawSolidBox_asm
+	pop bc
 
 ret
 
