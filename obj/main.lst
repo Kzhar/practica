@@ -281,45 +281,56 @@ Hexadecimal [16-Bits]
                             124 	;(2B DE) screen_start	Pointer to the start of the screen (or a backbuffer)
                             125 	;(1B C ) x	[0-79] Byte-aligned column starting from 0 (x coordinate,
                             126 	;(1B B ) y	[0-199] row starting from 0 (y coordinate) in bytes)
-   004C 11 00 C0      [10]  127 	ld de, #0xC000	;Parametros de la funcion cpct_getScreenPtr_asm para calcular la posición de memoria de video
-   004F 0E 00         [ 7]  128 	ld c, #0x00	;y pasarla a la función cpct_drawSprite_asm primera X=0 Y=posición del cuadrado +8
-   0051 06 58         [ 7]  129 	ld b, #88
-   0053 CD 00 00      [17]  130 	call cpct_getScreenPtr_asm
-                            131 	;el resutado -> la posicion de memoria esta ahora en Hl y habra que pasarla a DE
-                            132 
-   0056 EB            [ 4]  133 	ex de, hl
-   0057 21 02 00      [10]  134 	ld hl, #groundTile01	;Source Sprite Pointer (array with pixel data)
+   004C 0E 00         [ 7]  127 	ld c, #0x00	;y pasarla a la función cpct_drawSprite_asm primera X=0 Y=posición del cuadrado +8
+   004E                     128 	groundBucle:
+   004E 11 00 C0      [10]  129 	ld de, #0xC000	;Parametros de la funcion cpct_getScreenPtr_asm para calcular la posición de memoria de video
+   0051 C5            [11]  130 	push bc
+   0052 06 58         [ 7]  131 	ld b, #88
+   0054 CD 00 00      [17]  132 	call cpct_getScreenPtr_asm
+                            133 	;el resutado -> la posicion de memoria esta ahora en Hl y habra que pasarla a DE
+                            134 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 7.
 Hexadecimal [16-Bits]
 
 
 
-   005A 0E 02         [ 7]  135 	ld c, #0x02		;C ) width Sprite Width in bytes [1-63] (Beware, not in pixels!)
-   005C 06 08         [ 7]  136 	ld b, #0x08		;B ) height Sprite Height in bytes (>0)
-                            137 	;Input Parameters (6 bytes)
-                            138 	;2B HL) sprite	Source Sprite Pointer (array with pixel data)
-                            139 	;2B DE) memory	Destination video memory pointer
-                            140 	;1B C ) width	Sprite Width in bytes [1-63] (Beware, not in pixels!)
-                            141 	;1B B ) height	Sprite Height in bytes (>0)	
-   005E CD 00 00      [17]  142 	call cpct_drawSprite_asm
-                            143 
-   0061 C9            [10]  144 ret
+   0057 EB            [ 4]  135 	ex de, hl
+   0058 21 02 00      [10]  136 	ld hl, #groundTile01	;Source Sprite Pointer (array with pixel data)
+   005B 0E 02         [ 7]  137 	ld c, #0x02		;C ) width Sprite Width in bytes [1-63] (Beware, not in pixels!)
+   005D 06 08         [ 7]  138 	ld b, #0x08		;B ) height Sprite Height in bytes (>0)
+                            139 	;Input Parameters (6 bytes)
+                            140 	;2B HL) sprite	Source Sprite Pointer (array with pixel data)
+                            141 	;2B DE) memory	Destination video memory pointer
+                            142 	;1B C ) width	Sprite Width in bytes [1-63] (Beware, not in pixels!)
+                            143 	;1B B ) height	Sprite Height in bytes (>0)	
+   005F CD 00 00      [17]  144 	call cpct_drawSprite_asm
                             145 
-                            146 ;============================================
-                            147 ;MAIN PROGRAM ENTRY
-                            148 ;============================================
-   0062                     149 _main::
-   0062 CD 4C 00      [17]  150 	call drawGround
-                            151 
-   0065                     152 	gameLoop:
-   0065 3E 00         [ 7]  153 	ld a, #0x00
-   0067 CD 34 00      [17]  154 	call drawhero 		;call drawhero function :)
-                            155 
-   006A CD 00 00      [17]  156 	call checkUserInput	;check if user pressed keys
-                            157 
-   006D 3E FF         [ 7]  158 	ld a, #0xFF
-   006F CD 34 00      [17]  159 	call drawhero 		;call drawhero function :)
-                            160 
-   0072 CD 00 00      [17]  161 	call cpct_waitVSYNC_asm	;Waits until CRTC produces vertical synchronization signal (VSYNC) and returns.
+   0062 C1            [10]  146 	pop bc 
+   0063 79            [ 4]  147 	ld a, c 
+   0064 C6 02         [ 7]  148 	add #0x02
+   0066 4F            [ 4]  149 	ld c, a 
+   0067 FE 4E         [ 7]  150 	cp #78
+   0069 C2 4E 00      [10]  151 	jp nz, groundBucle
+                            152 
+                            153 
+                            154 
+   006C C9            [10]  155 ret
+                            156 
+                            157 ;============================================
+                            158 ;MAIN PROGRAM ENTRY
+                            159 ;============================================
+   006D                     160 _main::
+   006D CD 4C 00      [17]  161 	call drawGround
                             162 
-   0075 18 EE         [12]  163 	jr gameLoop
+   0070                     163 	gameLoop:
+   0070 3E 00         [ 7]  164 	ld a, #0x00
+   0072 CD 34 00      [17]  165 	call drawhero 		;call drawhero function :)
+                            166 
+   0075 CD 00 00      [17]  167 	call checkUserInput	;check if user pressed keys
+                            168 
+   0078 3E FF         [ 7]  169 	ld a, #0xFF
+   007A CD 34 00      [17]  170 	call drawhero 		;call drawhero function :)
+                            171 
+   007D CD 00 00      [17]  172 	call cpct_waitVSYNC_asm	;Waits until CRTC produces vertical synchronization signal (VSYNC) and returns.
+                            173 
+   0080 18 EE         [12]  174 	jr gameLoop

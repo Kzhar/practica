@@ -6,17 +6,17 @@ Hexadecimal [16-Bits]
                               1 .area _DATA
                               2 
                               3 ;declaracion de variables
-   4225 27                    4 hero_x: .db  #39		;;define byte
-   4226 50                    5 hero_y:	.db  #80
+   4230 27                    4 hero_x: .db  #39		;;define byte
+   4231 50                    5 hero_y:	.db  #80
                               6 ;declaracion de sprites
-   4227                       7 groundTile01:
-   4227 F0 F0                 8 	.db #0xF0, #0xF0
-   4229 F0 F0                 9 	.db #0xF0, #0xF0
-   422B A5 A5                10 	.db #0xA5, #0xA5
-   422D 5A 5A                11 	.db #0x5A, #0x5A
-   422F 0F 0F                12 	.db #0x0F, #0x0F
-   4231 05 05                13 	.db #0x05, #0x05
-   4233 0A 0A                14 	.db #0x0A, #0x0A
+   4232                       7 groundTile01:
+   4232 F0 F0                 8 	.db #0xF0, #0xF0
+   4234 F0 F0                 9 	.db #0xF0, #0xF0
+   4236 A5 A5                10 	.db #0xA5, #0xA5
+   4238 5A 5A                11 	.db #0x5A, #0x5A
+   423A 0F 0F                12 	.db #0x0F, #0x0F
+   423C 05 05                13 	.db #0x05, #0x05
+   423E 0A 0A                14 	.db #0x0A, #0x0A
                              15 ;Se declaran aqui las funciones de cpctelera que se van a utilizar 
                              16 ;cpctelera symbols
                              17 .globl cpct_drawSolidBox_asm
@@ -56,7 +56,7 @@ Hexadecimal [16-Bits]
                              22 ;;   16-byte aligned in memory to let functions use 8-bit maths for pointing
                              23 ;;   (alignment not working on user linking)
                              24 
-   4235                      25 _cpct_keyboardStatusBuffer:: .ds 10
+   4240                      25 _cpct_keyboardStatusBuffer:: .ds 10
                              26 
                              27 ;;
                              28 ;; Assembly constant definitions for keyboard mapping
@@ -189,7 +189,7 @@ Hexadecimal [16-Bits]
                              37 	;Reads the status of keyboard and joysticks and stores it in the 10 bytes reserved as cpct_keyboardStatusBuffer
                              38 	;Ver a que corresponde cada tecla del keyboardStatusBuffer en la documenacion de cpctelera
                              39 	;scan whole keyboard
-   4000 CD F4 41      [17]   40 	call cpct_scanKeyboard_asm
+   4000 CD FF 41      [17]   40 	call cpct_scanKeyboard_asm
                              41 	;Checks if a concrete key is pressed or not.
                              42 	;input HL -> se mete en HL el codigo de la tecla que queremos comprobar 
                              43 	;en el .include "keyboard/keyboard.s tenemos las constantes de todas las teclas, por lo tanto podemos tuilizar Key_D"
@@ -198,34 +198,34 @@ Hexadecimal [16-Bits]
    4003 21 07 20      [10]   46 	ld hl, #Key_D	;;equ Key_D definido en el fichero keyboard.s que hemos incluido en la parte de _DATA .include "keyboard/keyboard.s"
                              47 	;************************************************************
                              48 	;Return value (for Assembly, L=A=key_status) <u8> false (0, if not pressed) or true (>0, if pressed).  Take into account that true is not 1, but any non-0 number.
-   4006 CD 77 40      [17]   49 	call cpct_isKeyPressed_asm 
+   4006 CD 82 40      [17]   49 	call cpct_isKeyPressed_asm 
    4009 FE 00         [ 7]   50 	cp #0	;compara lo que hay en el acumuldor
                              51 		;Cero si no se ha presionado
    400B 28 10         [12]   52 	jr z, d_not_pressed
                              53 
-   400D 3A 25 42      [13]   54 		ld a, (hero_x)
+   400D 3A 30 42      [13]   54 		ld a, (hero_x)
    4010 3C            [ 4]   55 		inc a
    4011 C6 02         [ 7]   56 		add a, #BoxWidth 	;al final de drawhero popeamos bc para ulizar la anchura guardada en b en esta rutina
    4013 FE 4F         [ 7]   57 		cp #79		;maximo número de bytes en modo 0 (de 0 a 79)
    4015 D2 1D 40      [10]   58 		jp nc, d_not_pressed
    4018 D6 02         [ 7]   59 		sub a, #BoxWidth
-   401A 32 25 42      [13]   60 		ld (hero_x), a
+   401A 32 30 42      [13]   60 		ld (hero_x), a
                              61 	
                              62 
                              63 
    401D                      64 	d_not_pressed:
                              65 	; se repite para la letra A #key_A 
    401D 21 08 20      [10]   66 	ld hl, #Key_A	;Constante incluida en keyboard.s
-   4020 CD 77 40      [17]   67 	call cpct_isKeyPressed_asm
+   4020 CD 82 40      [17]   67 	call cpct_isKeyPressed_asm
    4023 FE 00         [ 7]   68 	cp #0 	;si es cero no se ha presionado
    4025 28 0C         [12]   69 	jr z, a_not_pressed
-   4027 3A 25 42      [13]   70 		ld a, (hero_x)
+   4027 3A 30 42      [13]   70 		ld a, (hero_x)
    402A 3D            [ 4]   71 		dec a
    402B FE FF         [ 7]   72 		cp #0xFF
    402D CA 33 40      [10]   73 		jp z, a_not_pressed	;si es menor que 0 hay acarreo por lo tanto hero_x se queda ne la misma posicion
                              74 					;no actualizamos 
                              75 
-   4030 32 25 42      [13]   76 		ld (hero_x), a
+   4030 32 30 42      [13]   76 		ld (hero_x), a
                              77 
    4033                      78 	a_not_pressed:
    4033 C9            [10]   79 ret	;a dibujar Hero en la nueva posicion
@@ -251,12 +251,12 @@ Hexadecimal [16-Bits]
                              94 	;Return Value(HL)
                              95 	;calculate screen position
    4035 11 00 C0      [10]   96 	ld de, #0xC000		;video memoy pointer
-   4038 3A 25 42      [13]   97 	ld a, (hero_x)		;|
+   4038 3A 30 42      [13]   97 	ld a, (hero_x)		;|
    403B 4F            [ 4]   98 	ld c, a			;| C=hero_x
-   403C 3A 26 42      [13]   99 	ld a, (hero_y)		;|
+   403C 3A 31 42      [13]   99 	ld a, (hero_y)		;|
    403F 47            [ 4]  100 	ld b, a			;| B=hero_y
                             101 
-   4040 CD D8 41      [17]  102 	call cpct_getScreenPtr_asm
+   4040 CD E3 41      [17]  102 	call cpct_getScreenPtr_asm
                             103 
                             104 
                             105 	;USING DRAW SOLID BOX CPCTELERA FUNCTION***************************** 
@@ -272,7 +272,7 @@ Hexadecimal [16-Bits]
    4044 F1            [10]  115 	pop af 		;color elegido por el usuario
                             116 	;ld a, #0x0F	;cyan
    4045 01 02 08      [10]  117 	ld bc, #0x0802	;alto por ancho en pixeles 8x8
-   4048 CD 2B 41      [17]  118 	call cpct_drawSolidBox_asm
+   4048 CD 36 41      [17]  118 	call cpct_drawSolidBox_asm
                             119 
    404B C9            [10]  120 ret
                             121 
@@ -281,45 +281,56 @@ Hexadecimal [16-Bits]
                             124 	;(2B DE) screen_start	Pointer to the start of the screen (or a backbuffer)
                             125 	;(1B C ) x	[0-79] Byte-aligned column starting from 0 (x coordinate,
                             126 	;(1B B ) y	[0-199] row starting from 0 (y coordinate) in bytes)
-   404C 11 00 C0      [10]  127 	ld de, #0xC000	;Parametros de la funcion cpct_getScreenPtr_asm para calcular la posición de memoria de video
-   404F 0E 00         [ 7]  128 	ld c, #0x00	;y pasarla a la función cpct_drawSprite_asm primera X=0 Y=posición del cuadrado +8
-   4051 06 58         [ 7]  129 	ld b, #88
-   4053 CD D8 41      [17]  130 	call cpct_getScreenPtr_asm
-                            131 	;el resutado -> la posicion de memoria esta ahora en Hl y habra que pasarla a DE
-                            132 
-   4056 EB            [ 4]  133 	ex de, hl
-   4057 21 27 42      [10]  134 	ld hl, #groundTile01	;Source Sprite Pointer (array with pixel data)
+   404C 0E 00         [ 7]  127 	ld c, #0x00	;y pasarla a la función cpct_drawSprite_asm primera X=0 Y=posición del cuadrado +8
+   404E                     128 	groundBucle:
+   404E 11 00 C0      [10]  129 	ld de, #0xC000	;Parametros de la funcion cpct_getScreenPtr_asm para calcular la posición de memoria de video
+   4051 C5            [11]  130 	push bc
+   4052 06 58         [ 7]  131 	ld b, #88
+   4054 CD E3 41      [17]  132 	call cpct_getScreenPtr_asm
+                            133 	;el resutado -> la posicion de memoria esta ahora en Hl y habra que pasarla a DE
+                            134 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 7.
 Hexadecimal [16-Bits]
 
 
 
-   405A 0E 02         [ 7]  135 	ld c, #0x02		;C ) width Sprite Width in bytes [1-63] (Beware, not in pixels!)
-   405C 06 08         [ 7]  136 	ld b, #0x08		;B ) height Sprite Height in bytes (>0)
-                            137 	;Input Parameters (6 bytes)
-                            138 	;2B HL) sprite	Source Sprite Pointer (array with pixel data)
-                            139 	;2B DE) memory	Destination video memory pointer
-                            140 	;1B C ) width	Sprite Width in bytes [1-63] (Beware, not in pixels!)
-                            141 	;1B B ) height	Sprite Height in bytes (>0)	
-   405E CD 83 40      [17]  142 	call cpct_drawSprite_asm
-                            143 
-   4061 C9            [10]  144 ret
+   4057 EB            [ 4]  135 	ex de, hl
+   4058 21 32 42      [10]  136 	ld hl, #groundTile01	;Source Sprite Pointer (array with pixel data)
+   405B 0E 02         [ 7]  137 	ld c, #0x02		;C ) width Sprite Width in bytes [1-63] (Beware, not in pixels!)
+   405D 06 08         [ 7]  138 	ld b, #0x08		;B ) height Sprite Height in bytes (>0)
+                            139 	;Input Parameters (6 bytes)
+                            140 	;2B HL) sprite	Source Sprite Pointer (array with pixel data)
+                            141 	;2B DE) memory	Destination video memory pointer
+                            142 	;1B C ) width	Sprite Width in bytes [1-63] (Beware, not in pixels!)
+                            143 	;1B B ) height	Sprite Height in bytes (>0)	
+   405F CD 8E 40      [17]  144 	call cpct_drawSprite_asm
                             145 
-                            146 ;============================================
-                            147 ;MAIN PROGRAM ENTRY
-                            148 ;============================================
-   4062                     149 _main::
-   4062 CD 4C 40      [17]  150 	call drawGround
-                            151 
-   4065                     152 	gameLoop:
-   4065 3E 00         [ 7]  153 	ld a, #0x00
-   4067 CD 34 40      [17]  154 	call drawhero 		;call drawhero function :)
-                            155 
-   406A CD 00 40      [17]  156 	call checkUserInput	;check if user pressed keys
-                            157 
-   406D 3E FF         [ 7]  158 	ld a, #0xFF
-   406F CD 34 40      [17]  159 	call drawhero 		;call drawhero function :)
-                            160 
-   4072 CD 23 41      [17]  161 	call cpct_waitVSYNC_asm	;Waits until CRTC produces vertical synchronization signal (VSYNC) and returns.
+   4062 C1            [10]  146 	pop bc 
+   4063 79            [ 4]  147 	ld a, c 
+   4064 C6 02         [ 7]  148 	add #0x02
+   4066 4F            [ 4]  149 	ld c, a 
+   4067 FE 4E         [ 7]  150 	cp #78
+   4069 C2 4E 40      [10]  151 	jp nz, groundBucle
+                            152 
+                            153 
+                            154 
+   406C C9            [10]  155 ret
+                            156 
+                            157 ;============================================
+                            158 ;MAIN PROGRAM ENTRY
+                            159 ;============================================
+   406D                     160 _main::
+   406D CD 4C 40      [17]  161 	call drawGround
                             162 
-   4075 18 EE         [12]  163 	jr gameLoop
+   4070                     163 	gameLoop:
+   4070 3E 00         [ 7]  164 	ld a, #0x00
+   4072 CD 34 40      [17]  165 	call drawhero 		;call drawhero function :)
+                            166 
+   4075 CD 00 40      [17]  167 	call checkUserInput	;check if user pressed keys
+                            168 
+   4078 3E FF         [ 7]  169 	ld a, #0xFF
+   407A CD 34 40      [17]  170 	call drawhero 		;call drawhero function :)
+                            171 
+   407D CD 2E 41      [17]  172 	call cpct_waitVSYNC_asm	;Waits until CRTC produces vertical synchronization signal (VSYNC) and returns.
+                            173 
+   4080 18 EE         [12]  174 	jr gameLoop

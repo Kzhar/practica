@@ -124,8 +124,10 @@ drawGround:
 	;(2B DE) screen_start	Pointer to the start of the screen (or a backbuffer)
 	;(1B C ) x	[0-79] Byte-aligned column starting from 0 (x coordinate,
 	;(1B B ) y	[0-199] row starting from 0 (y coordinate) in bytes)
-	ld de, #0xC000	;Parametros de la funcion cpct_getScreenPtr_asm para calcular la posición de memoria de video
 	ld c, #0x00	;y pasarla a la función cpct_drawSprite_asm primera X=0 Y=posición del cuadrado +8
+	groundBucle:
+	ld de, #0xC000	;Parametros de la funcion cpct_getScreenPtr_asm para calcular la posición de memoria de video
+	push bc
 	ld b, #88
 	call cpct_getScreenPtr_asm
 	;el resutado -> la posicion de memoria esta ahora en Hl y habra que pasarla a DE
@@ -140,6 +142,15 @@ drawGround:
 	;1B C ) width	Sprite Width in bytes [1-63] (Beware, not in pixels!)
 	;1B B ) height	Sprite Height in bytes (>0)	
 	call cpct_drawSprite_asm
+
+	pop bc 
+	ld a, c 
+	add #0x02
+	ld c, a 
+	cp #78
+	jp nz, groundBucle
+
+
 
 ret
 

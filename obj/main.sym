@@ -34,18 +34,18 @@ Symbol Table
     Key_T   =  0806     |     Key_Tab =  1008     |     Key_U   =  0405 
     Key_V   =  8006     |     Key_W   =  0807     |     Key_X   =  8007 
     Key_Y   =  0805     |     Key_Z   =  8008     |   1 _cpct_ke   0010 GR
-  0 _main      0062 GR  |   0 a_not_pr   0033 R   |   0 checkUse   0000 R
+  0 _main      006D GR  |   0 a_not_pr   0033 R   |   0 checkUse   0000 R
     cpct_dra   **** GX  |     cpct_dra   **** GX  |     cpct_get   **** GX
     cpct_isK   **** GX  |     cpct_sca   **** GX  |     cpct_wai   **** GX
   0 d_not_pr   001D R   |   0 drawGrou   004C R   |   0 drawhero   0034 R
-  0 gameLoop   0065 R   |   1 groundTi   0002 R   |   1 hero_x     0000 R
-  1 hero_y     0001 R
+  0 gameLoop   0070 R   |   0 groundBu   004E R   |   1 groundTi   0002 R
+  1 hero_x     0000 R   |   1 hero_y     0001 R
 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
 Hexadecimal [16-Bits]
 
 Area Table
 
-   0 _CODE      size   77   flags    0
+   0 _CODE      size   82   flags    0
    1 _DATA      size   1A   flags    0
 
