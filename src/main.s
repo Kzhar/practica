@@ -4,14 +4,7 @@
 hero_x: .db  #39		;;define byte
 hero_y:	.db  #80
 ;declaracion de sprites
-groundTile01:
-	.db #0xF0, #0xF0
-	.db #0xF0, #0xF0
-	.db #0xA5, #0xA5
-	.db #0x5A, #0x5A
-	.db #0x0F, #0x0F
-	.db #0x05, #0x05
-	.db #0x0A, #0x0A
+
 ;Se declaran aqui las funciones de cpctelera que se van a utilizar 
 ;cpctelera symbols
 .globl cpct_drawSolidBox_asm
@@ -19,12 +12,11 @@ groundTile01:
 .globl cpct_scanKeyboard_asm
 .globl cpct_isKeyPressed_asm
 .globl cpct_waitVSYNC_asm
-.globl cpct_drawSprite_asm
 
 .include "keyboard/keyboard.s"
 
 ;Declaración de constantes
-BoxWidth = 0x02 
+
 
 .area _CODE
 
@@ -53,29 +45,12 @@ checkUserInput:
 
 		ld a, (hero_x)
 		inc a
-		add a, #BoxWidth 	;al final de drawhero popeamos bc para ulizar la anchura guardada en b en esta rutina
-		cp #79		;maximo número de bytes en modo 0 (de 0 a 79)
-		jp nc, d_not_pressed
-		sub a, #BoxWidth
 		ld (hero_x), a
 	
 
 
 	d_not_pressed:
-	; se repite para la letra A #key_A 
-	ld hl, #Key_A	;Constante incluida en keyboard.s
-	call cpct_isKeyPressed_asm
-	cp #0 	;si es cero no se ha presionado
-	jr z, a_not_pressed
-		ld a, (hero_x)
-		dec a
-		cp #0xFF
-		jp z, a_not_pressed	;si es menor que 0 hay acarreo por lo tanto hero_x se queda ne la misma posicion
-					;no actualizamos 
 
-		ld (hero_x), a
-
-	a_not_pressed:
 ret	;a dibujar Hero en la nueva posicion
 
 ;============================================
@@ -119,48 +94,12 @@ drawhero:
 
 ret
 
-drawGround:
-	;Input Parameters (4 Bytes)
-	;(2B DE) screen_start	Pointer to the start of the screen (or a backbuffer)
-	;(1B C ) x	[0-79] Byte-aligned column starting from 0 (x coordinate,
-	;(1B B ) y	[0-199] row starting from 0 (y coordinate) in bytes)
-	ld c, #0x00	;y pasarla a la función cpct_drawSprite_asm primera X=0 Y=posición del cuadrado +8
-	groundBucle:
-	ld de, #0xC000	;Parametros de la funcion cpct_getScreenPtr_asm para calcular la posición de memoria de video
-	push bc
-	ld b, #88
-	call cpct_getScreenPtr_asm
-	;el resutado -> la posicion de memoria esta ahora en Hl y habra que pasarla a DE
-
-	ex de, hl
-	ld hl, #groundTile01	;Source Sprite Pointer (array with pixel data)
-	ld c, #0x02		;C ) width Sprite Width in bytes [1-63] (Beware, not in pixels!)
-	ld b, #0x08		;B ) height Sprite Height in bytes (>0)
-	;Input Parameters (6 bytes)
-	;2B HL) sprite	Source Sprite Pointer (array with pixel data)
-	;2B DE) memory	Destination video memory pointer
-	;1B C ) width	Sprite Width in bytes [1-63] (Beware, not in pixels!)
-	;1B B ) height	Sprite Height in bytes (>0)	
-	call cpct_drawSprite_asm
-
-	pop bc 
-	ld a, c 
-	add #0x02
-	ld c, a 
-	cp #78
-	jp nz, groundBucle
-
-
-
-ret
 
 ;============================================
 ;MAIN PROGRAM ENTRY
 ;============================================
 _main::
-	call drawGround
 
-	gameLoop:
 	ld a, #0x00
 	call drawhero 		;call drawhero function :)
 
@@ -171,4 +110,4 @@ _main::
 
 	call cpct_waitVSYNC_asm	;Waits until CRTC produces vertical synchronization signal (VSYNC) and returns.
 
-	jr gameLoop
+	jr _main
