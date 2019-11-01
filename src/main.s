@@ -3,6 +3,15 @@
 ;declaracion de variables
 hero_x: .db  #39		;;define byte
 hero_y:	.db  #80
+;declaracion de sprites
+groundTile01:
+	.db #0xF0, #0xF0
+	.db #0xF0, #0xF0
+	.db #0xA5, #0xA5
+	.db #0x5A, #0x5A
+	.db #0x0F, #0x0F
+	.db #0x05, #0x05
+	.db #0x0A, #0x0A
 ;Se declaran aqui las funciones de cpctelera que se van a utilizar 
 ;cpctelera symbols
 .globl cpct_drawSolidBox_asm
@@ -10,6 +19,7 @@ hero_y:	.db  #80
 .globl cpct_scanKeyboard_asm
 .globl cpct_isKeyPressed_asm
 .globl cpct_waitVSYNC_asm
+.globl cpct_drawSprite_asm
 
 .include "keyboard/keyboard.s"
 
@@ -104,8 +114,32 @@ drawhero:
 	ex de, hl 	;intercambia hl y de 
 	pop af 		;color elegido por el usuario
 	;ld a, #0x0F	;cyan
-	ld bc, #0x08 #BoxWidth	;alto por ancho en pixeles 8x8
+	ld bc, #0x0802	;alto por ancho en pixeles 8x8
 	call cpct_drawSolidBox_asm
+
+ret
+
+drawGround:
+	;Input Parameters (4 Bytes)
+	;(2B DE) screen_start	Pointer to the start of the screen (or a backbuffer)
+	;(1B C ) x	[0-79] Byte-aligned column starting from 0 (x coordinate,
+	;(1B B ) y	[0-199] row starting from 0 (y coordinate) in bytes)
+	ld de, #0xC000	;Parametros de la funcion cpct_getScreenPtr_asm para calcular la posición de memoria de video
+	ld c, #0x00	;y pasarla a la función cpct_drawSprite_asm primera X=0 Y=posición del cuadrado +8
+	ld b, #88
+	call cpct_getScreenPtr_asm
+	;el resutado -> la posicion de memoria esta ahora en Hl y habra que pasarla a DE
+
+	ex de, hl
+	ld hl, #groundTile01	;Source Sprite Pointer (array with pixel data)
+	ld c, #0x02		;C ) width Sprite Width in bytes [1-63] (Beware, not in pixels!)
+	ld b, #0x08		;B ) height Sprite Height in bytes (>0)
+	;Input Parameters (6 bytes)
+	;2B HL) sprite	Source Sprite Pointer (array with pixel data)
+	;2B DE) memory	Destination video memory pointer
+	;1B C ) width	Sprite Width in bytes [1-63] (Beware, not in pixels!)
+	;1B B ) height	Sprite Height in bytes (>0)	
+	call cpct_drawSprite_asm
 
 ret
 
@@ -113,6 +147,9 @@ ret
 ;MAIN PROGRAM ENTRY
 ;============================================
 _main::
+	call drawGround
+
+	gameLoop:
 	ld a, #0x00
 	call drawhero 		;call drawhero function :)
 
@@ -123,4 +160,4 @@ _main::
 
 	call cpct_waitVSYNC_asm	;Waits until CRTC produces vertical synchronization signal (VSYNC) and returns.
 
-	jr _main
+	jr gameLoop
