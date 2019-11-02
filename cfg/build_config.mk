@@ -37,7 +37,7 @@
 ##   This variable should always have the absolute path value.
 ##
 #>> Uses environment variable $(CPCT_PATH)
-
+CPCT_PATH := /home/Diego/cpctelera/cpctelera
 ####
 ## SECTION 1: Project configuration 
 ##
