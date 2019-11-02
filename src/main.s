@@ -1,7 +1,7 @@
 .area _DATA
 
 ;declaracion de variables
-hero_x: .db  #39		;;define byte
+hero_x: .db  #39		;define byte
 hero_y:	.db  #80
 ;declaracion de sprites
 groundTile01:
@@ -33,23 +33,13 @@ BoxWidth = 0x02
 ;DESTROYS: 
 ;============================================
 checkUserInput:
-	;/////////////////////////SE PODRÍA GUARDAR EN UN BYTE DE MEMORIA PARA NO HACER TANTOS CÁLCULOS
-	;Reads the status of keyboard and joysticks and stores it in the 10 bytes reserved as cpct_keyboardStatusBuffer
-	;Ver a que corresponde cada tecla del keyboardStatusBuffer en la documenacion de cpctelera
-	;scan whole keyboard
-	call cpct_scanKeyboard_asm
-	;Checks if a concrete key is pressed or not.
-	;input HL -> se mete en HL el codigo de la tecla que queremos comprobar 
-	;en el .include "keyboard/keyboard.s tenemos las constantes de todas las teclas, por lo tanto podemos tuilizar Key_D"
 
-	;check if d is pressed
-	ld hl, #Key_D	;;equ Key_D definido en el fichero keyboard.s que hemos incluido en la parte de _DATA .include "keyboard/keyboard.s"
-	;************************************************************
-	;Return value (for Assembly, L=A=key_status) <u8> false (0, if not pressed) or true (>0, if pressed).  Take into account that true is not 1, but any non-0 number.
-	call cpct_isKeyPressed_asm 
-	cp #0	;compara lo que hay en el acumuldor
-		;Cero si no se ha presionado
-	jr z, d_not_pressed
+	call cpct_scanKeyboard_asm	;CPCTelera routine that scans whole keyboard
+
+	ld hl, #Key_D				;Input for cpct_isKeyPressed_asm // constant #Key_D include in keyboard/keyboard.s
+	call cpct_isKeyPressed_asm 	;Outputs in A & L = 0 if not pressed or 0> if not pressed
+	cp #0
+	jr z, d_not_pressed			;jump to d_not_pressed
 
 		ld a, (hero_x)
 		inc a
