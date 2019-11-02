@@ -33,19 +33,20 @@ Symbol Table
     Key_Slas=  4003     |     Key_Spac=  8005     |     Key_T   =  0806 
     Key_Tab =  1008     |     Key_U   =  0405     |     Key_V   =  8006 
     Key_W   =  0807     |     Key_X   =  8007     |     Key_Y   =  0805 
-    Key_Z   =  8008     |   1 _cpct_ke   0003 GR  |   0 _main      0055 GR
-  0 a_not_pr   003C R   |   0 checkUse   001F R   |     cpct_dra   **** GX
+    Key_Z   =  8008     |   1 _cpct_ke   0010 GR  |   0 _main      008F GR
+  0 a_not_pr   0069 R   |   0 checkUse   004C R   |     cpct_dra   **** GX
     cpct_get   **** GX  |     cpct_isK   **** GX  |     cpct_sca   **** GX
-    cpct_wai   **** GX  |   0 d_not_pr   002F R   |   0 drawhero   003D R
-  1 hero_jum   0002 R   |   1 hero_x     0000 R   |   1 hero_y     0001 R
-  0 jumpCont   0000 R   |   0 moveHero   0013 R   |   0 moveHero   0007 R
-  0 not_move   001E R   |   0 not_move   0012 R
+    cpct_wai   **** GX  |   0 d_not_pr   005C R   |   0 drawhero   0077 R
+  0 end_of_j   0022 R   |   1 hero_jum   0002 R   |   1 hero_x     0000 R
+  1 hero_y     0001 R   |   0 jumpCont   0000 R   |   1 jumpTabl   0003 R
+  0 moveHero   0034 R   |   0 moveHero   0028 R   |   0 not_move   003F R
+  0 not_move   0033 R   |   0 startJum   0040 R   |   0 w_not_pr   0076 R
 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
 Hexadecimal [16-Bits]
 
 Area Table
 
-   0 _CODE      size   6A   flags    0
-   1 _DATA      size    D   flags    0
+   0 _CODE      size   A4   flags    0
+   1 _DATA      size   1A   flags    0
 

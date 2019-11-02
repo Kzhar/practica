@@ -8,41 +8,41 @@ Area                                    Addr        Size        Decimal Bytes (A
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
      00000000  .__.ABS.                           cpct_keyboard
-     0000000D  l__DATA                         
-     00000178  l__CODE                         
+     0000001A  l__DATA                         
+     000001B2  l__CODE                         
      00004000  s__CODE                         
-     00004178  s__DATA                         
+     000041B2  s__DATA                         
 
 ASxxxx Linker V03.00 + NoICE + sdld,  page 2.
 Hexadecimal  [32-Bits]
 
 Area                                    Addr        Size        Decimal Bytes (Attributes)
 --------------------------------        ----        ----        ------- ----- ------------
-_CODE                               00004000    00000178 =         376. bytes (REL,CON)
+_CODE                               00004000    000001B2 =         434. bytes (REL,CON)
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
-     00004055  _main                              cpct_keyboard
-     0000406A  _cpct_isKeyPressed                 cpct_keyboard
-     0000406A  cpct_isKeyPressed_asm              cpct_keyboard
-     00004076  _cpct_waitVSYNC                    cpct_video
-     00004076  cpct_waitVSYNC_asm                 cpct_video
-     0000407E  cpct_drawSolidBox_asm              cpct_sprites
-     0000412A  _cpct_mode_rom_status              cpct_firmware
-     0000412B  cpct_getScreenPtr_asm              cpct_video
-     00004147  _cpct_scanKeyboard                 cpct_keyboard
-     00004147  cpct_scanKeyboard_asm              cpct_keyboard
+     0000408F  _main                              cpct_keyboard
+     000040A4  _cpct_isKeyPressed                 cpct_keyboard
+     000040A4  cpct_isKeyPressed_asm              cpct_keyboard
+     000040B0  _cpct_waitVSYNC                    cpct_video
+     000040B0  cpct_waitVSYNC_asm                 cpct_video
+     000040B8  cpct_drawSolidBox_asm              cpct_sprites
+     00004164  _cpct_mode_rom_status              cpct_firmware
+     00004165  cpct_getScreenPtr_asm              cpct_video
+     00004181  _cpct_scanKeyboard                 cpct_keyboard
+     00004181  cpct_scanKeyboard_asm              cpct_keyboard
 
 ASxxxx Linker V03.00 + NoICE + sdld,  page 3.
 Hexadecimal  [32-Bits]
 
 Area                                    Addr        Size        Decimal Bytes (Attributes)
 --------------------------------        ----        ----        ------- ----- ------------
-_DATA                               00004178    0000000D =          13. bytes (REL,CON)
+_DATA                               000041B2    0000001A =          26. bytes (REL,CON)
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
-     0000417B  _cpct_keyboardStatusBuffer         cpct_keyboard
+     000041C2  _cpct_keyboardStatusBuffer         cpct_keyboard
 
 ASxxxx Linker V03.00 + NoICE + sdld,  page 4.
 

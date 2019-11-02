@@ -35,13 +35,35 @@ jumpControl:
 	cp #-1			;comparamos con -1 -> no estoy saltando
 	ret z			;si la variable de estado es -1, no esta saltando, por lo tanto sale de la funcion
 
-	;Move hero (jump)
-	ld hl, jumpTable	;HL Point to the first element of the Jump Table
+	;Get jump value
+	ld hl, #jumpTable	;HL Point to the first element of the Jump Table
 	ld c, a			;
 	ld b, #0		;
 	add hl, bc 		;HL += A -> point to the element of the array 
 
+	;check end of jumping
+	ld a, (hl)		;HL ahora es el puntero a la tabla mas el offset que está en hero_jump 
+	cp #0x80		;si el contenido de esa direccion de memoria es 0x80 es que hemos llegado al final de la tabla
+	jr z, end_of_jump	;
+
+	;do jump Movement
+	ld b, a			;B= Jump Movement = Movement in Y	
+	ld a, (hero_y)		;A= Y position
+	add b			;A+= B -> Add jump movement 
+	ld (hero_y), a		;Update hero_y Value
+
+	;Increment hero_jump Index
+	ld a, (hero_jump)	
+	inc a			;
+	ld (hero_jump), a	;Hero_jump ++
+
 	ret 
+
+	;poner el indice hero_jump a -1 lo que quiere decir que el salto no se esta ejecutando
+	end_of_jump:		;si se ha detectado el final del salto
+		ld a, #-1
+		ld (hero_jump), a
+	ret
 
 ;============================================
 ;move Hero Right if is not at the screen limit
@@ -71,6 +93,20 @@ moveHeroLeft:
 		ld (hero_x), a
 
 	not_move_left:
+
+	ret
+
+;============================================
+;Start Hero Jump
+;DESTROYS: AF
+;============================================
+startJump:
+	ld a, (hero_jump)	;A=indice de la tabla de salto
+	cp #-1			;Si no es -1 el salto ya esta activo
+	ret nz			;salimos de la rutina sin hacer nada si el salto esta ya activo
+	;Jump is not active, activate it
+	ld a, #0
+	ld (hero_jump), a	;activo el salto metiendo en a un 0 -> primer indice de la tabla
 
 	ret
 
@@ -111,6 +147,15 @@ checkUserInput:
 		call moveHeroLeft	;si la tecla se ha pulsado llamamos a la rutina moveHeroLeft
 
 	a_not_pressed:
+
+	ld hl, #Key_W
+	call cpct_isKeyPressed_asm
+	cp #0
+	jr z, w_not_pressed
+
+		call startJump		;si se ha pulsado W
+
+	w_not_pressed:
 
 ret	;a dibujar Hero en la nueva posicion
 

@@ -6,26 +6,31 @@ Hexadecimal [16-Bits]
                               1 .area _DATA
                               2 
                               3 ;declaracion de variables
-   4178 27                    4 hero_x: .db 	#39		;;define byte
-   4179 50                    5 hero_y:	.db 	#80
+   41B2 27                    4 hero_x: 	.db 	#39		;;define byte
+   41B3 50                    5 hero_y:		.db 	#80
                               6 
-   417A FF                    7 hero_jump:	.db #-1	;variable de control del array de salto de Hero
-                              8 ;declaracion de sprites
-                              9 
-                             10 ;Se declaran aqui las funciones de cpctelera que se van a utilizar 
-                             11 ;cpctelera symbols
-                             12 .globl cpct_drawSolidBox_asm
-                             13 .globl cpct_getScreenPtr_asm
-                             14 .globl cpct_scanKeyboard_asm
-                             15 .globl cpct_isKeyPressed_asm
-                             16 .globl cpct_waitVSYNC_asm
-                             17 
+   41B4 FF                    7 hero_jump:	.db 	#-1	;variable de control del array de salto de Hero
+                              8 ;jump Table
+   41B5                       9 jumpTable:
+   41B5 FD FE FF FF          10 	.db #-3, #-2, #-1, #-1
+   41B9 FF 00 00 00          11 	.db #-1, #00, #00, #00
+   41BD 01 02 02 03          12 	.db #01, #02, #02, #03
+   41C1 80                   13 	.db #0x80 		;byte que marca el final de la tabla de salto 1000 0000
+                             14 
+                             15 ;Se declaran aqui las funciones de cpctelera que se van a utilizar 
+                             16 ;cpctelera symbols
+                             17 .globl cpct_drawSolidBox_asm
+                             18 .globl cpct_getScreenPtr_asm
+                             19 .globl cpct_scanKeyboard_asm
+                             20 .globl cpct_isKeyPressed_asm
+                             21 .globl cpct_waitVSYNC_asm
+                             22 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
 Hexadecimal [16-Bits]
 
 
 
-                             18 .include "keyboard/keyboard.s"
+                             23 .include "keyboard/keyboard.s"
                               1 ;;-----------------------------LICENSE NOTICE------------------------------------
                               2 ;;  This file is part of CPCtelera: An Amstrad CPC Game Engine 
                               3 ;;  Copyright (C) 2014 ronaldo / Fremos / Cheesetea / ByteRealms (@FranGallegoBR)
@@ -50,7 +55,7 @@ Hexadecimal [16-Bits]
                              22 ;;   16-byte aligned in memory to let functions use 8-bit maths for pointing
                              23 ;;   (alignment not working on user linking)
                              24 
-   417B                      25 _cpct_keyboardStatusBuffer:: .ds 10
+   41C2                      25 _cpct_keyboardStatusBuffer:: .ds 10
                              26 
                              27 ;;
                              28 ;; Assembly constant definitions for keyboard mapping
@@ -168,159 +173,215 @@ Hexadecimal [16-Bits]
 
 
 
-                             19 
-                             20 ;Declaración de constantes
-                             21 
-                             22 
-                             23 .area _CODE
-                             24 ;============================================
-                             25 ;Controls Jump Movements
-                             26 ;DESTROYS: 
-                             27 ;============================================
-   4000                      28 jumpControl:
-   4000 3A 7A 41      [13]   29 	ld a, (hero_jump)	;comprovamos el estado de la variable de estado
-   4003 FE FF         [ 7]   30 	cp #-1			;comparamos con -1 -> no estoy saltando
-   4005 C8            [11]   31 	ret z			;si la variable de estado es -1, no esta saltando, por lo tanto sale de la funcion
-                             32 
-   4006 C9            [10]   33 	ret 
-                             34 
-                             35 ;============================================
-                             36 ;move Hero Right if is not at the screen limit
-                             37 ;DESTROYS: AF
-                             38 ;============================================
-                             39 
-   4007                      40 moveHeroRight:
-   4007 3A 78 41      [13]   41 	ld a, (hero_x)
-   400A FE 4E         [ 7]   42 	cp #80-2 	;comprovamos que no se sale por la derecha (80 bytes pantalla- 2 anchura Hero)
-   400C 28 04         [12]   43 	jr z, not_move_right
-   400E 3C            [ 4]   44 		inc a		;si no se sale de la pantalla se mueve
-   400F 32 78 41      [13]   45 		ld (hero_x), a
-                             46 
-   4012                      47 	not_move_right:
+                             24 
+                             25 ;Declaración de constantes
+                             26 
+                             27 
+                             28 .area _CODE
+                             29 ;============================================
+                             30 ;Controls Jump Movements
+                             31 ;DESTROYS: 
+                             32 ;============================================
+   4000                      33 jumpControl:
+   4000 3A B4 41      [13]   34 	ld a, (hero_jump)	;comprovamos el estado de la variable de estado
+   4003 FE FF         [ 7]   35 	cp #-1			;comparamos con -1 -> no estoy saltando
+   4005 C8            [11]   36 	ret z			;si la variable de estado es -1, no esta saltando, por lo tanto sale de la funcion
+                             37 
+                             38 	;Get jump value
+   4006 21 B5 41      [10]   39 	ld hl, #jumpTable	;HL Point to the first element of the Jump Table
+   4009 4F            [ 4]   40 	ld c, a			;
+   400A 06 00         [ 7]   41 	ld b, #0		;
+   400C 09            [11]   42 	add hl, bc 		;HL += A -> point to the element of the array 
+                             43 
+                             44 	;check end of jumping
+   400D 7E            [ 7]   45 	ld a, (hl)		;HL ahora es el puntero a la tabla mas el offset que está en hero_jump 
+   400E FE 80         [ 7]   46 	cp #0x80		;si el contenido de esa direccion de memoria es 0x80 es que hemos llegado al final de la tabla
+   4010 28 10         [12]   47 	jr z, end_of_jump	;
                              48 
-   4012 C9            [10]   49 	ret
-                             50 
-                             51 ;============================================
-                             52 ;move Hero Left if is not at the screen limit
-                             53 ;DESTROYS: AF
-                             54 ;============================================
-   4013                      55 moveHeroLeft:
-   4013 3A 78 41      [13]   56 	ld a, (hero_x)
-   4016 FE 00         [ 7]   57 	cp #0 	;comprovamos que no se sale por la izquierda (X=0)
-   4018 28 04         [12]   58 	jr z, not_move_left
-   401A 3D            [ 4]   59 		dec a		;si no se sale de la pantalla se mueve
-   401B 32 78 41      [13]   60 		ld (hero_x), a
+                             49 	;do jump Movement
+   4012 47            [ 4]   50 	ld b, a			;B= Jump Movement = Movement in Y	
+   4013 3A B3 41      [13]   51 	ld a, (hero_y)		;A= Y position
+   4016 80            [ 4]   52 	add b			;A+= B -> Add jump movement 
+   4017 32 B3 41      [13]   53 	ld (hero_y), a		;Update hero_y Value
+                             54 
+                             55 	;Increment hero_jump Index
+   401A 3A B4 41      [13]   56 	ld a, (hero_jump)	
+   401D 3C            [ 4]   57 	inc a			;
+   401E 32 B4 41      [13]   58 	ld (hero_jump), a	;Hero_jump ++
+                             59 
+   4021 C9            [10]   60 	ret 
                              61 
-   401E                      62 	not_move_left:
-                             63 
-   401E C9            [10]   64 	ret
-                             65 
-                             66 ;============================================
-                             67 ;CHECK USER INPUT AND REACTS
-                             68 ;DESTROYS: 
-                             69 ;============================================
-   401F                      70 checkUserInput:
-                             71 	;/////////////////////////SE PODRÍA GUARDAR EN UN BYTE DE MEMORIA PARA NO HACER TANTOS CÁLCULOS
-                             72 	;Reads the status of keyboard and joysticks and stores it in the 10 bytes reserved as cpct_keyboardStatusBuffer
-                             73 	;Ver a que corresponde cada tecla del keyboardStatusBuffer en la documenacion de cpctelera
+                             62 	;poner el indice hero_jump a -1 lo que quiere decir que el salto no se esta ejecutando
+   4022                      63 	end_of_jump:		;si se ha detectado el final del salto
+   4022 3E FF         [ 7]   64 		ld a, #-1
+   4024 32 B4 41      [13]   65 		ld (hero_jump), a
+   4027 C9            [10]   66 	ret
+                             67 
+                             68 ;============================================
+                             69 ;move Hero Right if is not at the screen limit
+                             70 ;DESTROYS: AF
+                             71 ;============================================
+                             72 
+   4028                      73 moveHeroRight:
+   4028 3A B2 41      [13]   74 	ld a, (hero_x)
+   402B FE 4E         [ 7]   75 	cp #80-2 	;comprovamos que no se sale por la derecha (80 bytes pantalla- 2 anchura Hero)
+   402D 28 04         [12]   76 	jr z, not_move_right
+   402F 3C            [ 4]   77 		inc a		;si no se sale de la pantalla se mueve
+   4030 32 B2 41      [13]   78 		ld (hero_x), a
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 6.
 Hexadecimal [16-Bits]
 
 
 
-                             74 	;scan whole keyboard
-   401F CD 47 41      [17]   75 	call cpct_scanKeyboard_asm
-                             76 
-                             77 	;Checks if a concrete key is pressed or not.
-                             78 	;input HL -> se mete en HL el codigo de la tecla que queremos comprobar 
-                             79 	;en el .include "keyboard/keyboard.s tenemos las constantes de todas las teclas, por lo tanto podemos tuilizar Key_D"
-                             80 	;check if d is pressed
-   4022 21 07 20      [10]   81 	ld hl, #Key_D	;;equ Key_D definido en el fichero keyboard.s que hemos incluido en la parte de _DATA .include "keyboard/keyboard.s"
-                             82 	;************************************************************
-                             83 	;Return value (for Assembly, L=A=key_status) <u8> false (0, if not pressed) or true (>0, if pressed).  Take into account that true is not 1, but any non-0 number.
-   4025 CD 6A 40      [17]   84 	call cpct_isKeyPressed_asm 
-   4028 FE 00         [ 7]   85 	cp #0	;compara lo que hay en el acumuldor
-                             86 		;Cero si no se ha presionado
-   402A 28 03         [12]   87 	jr z, d_not_pressed
-                             88 
-   402C CD 07 40      [17]   89 		call moveHeroRight	;si la tecla se ha pulsado llamamos a la rutina moveHeroRight
-                             90 
-   402F                      91 	d_not_pressed:
-                             92 
-                             93 	;Ahora comprobamos si se ha pulado A
-   402F 21 08 20      [10]   94 	ld hl, #Key_A	
-   4032 CD 6A 40      [17]   95 	call cpct_isKeyPressed_asm 
-   4035 FE 00         [ 7]   96 	cp #0	;compara lo que hay en el acumuldor
-                             97 		;Cero si no se ha presionado
-   4037 28 03         [12]   98 	jr z, a_not_pressed
-                             99 
-   4039 CD 13 40      [17]  100 		call moveHeroLeft	;si la tecla se ha pulsado llamamos a la rutina moveHeroLeft
-                            101 
-   403C                     102 	a_not_pressed:
-                            103 
-   403C C9            [10]  104 ret	;a dibujar Hero en la nueva posicion
-                            105 
-                            106 ;============================================
-                            107 ;DRAW THE HERO
-                            108 ;INPUTS A=> Colour pattern 
-                            109 ;DESTROYS: AF, BC, DE, HL
-                            110 ;============================================
-   403D                     111 drawhero:
-   403D F5            [11]  112 	push af 	;guardamos en la pila el patron de color para utilizarlo mas adelante
-                            113 	;USING GET SCREEN POINTER CPCTELERA FUNCTION*******************************
-                            114 	;Input Parameters (4 Bytes)
-                            115 	;(2B DE) screen_start	Pointer to the start of the screen (or a backbuffer)
-                            116 	;(1B C ) x	[0-79] Byte-aligned column starting from 0 (x coordinate,
-                            117 	;(1B B ) y	[0-199] row starting from 0 (y coordinate) in bytes)
-                            118 
-                            119 	;Return Value(HL)
-                            120 	;calculate screen position
-   403E 11 00 C0      [10]  121 	ld de, #0xC000		;video memoy pointer
-   4041 3A 78 41      [13]  122 	ld a, (hero_x)		;|
-   4044 4F            [ 4]  123 	ld c, a			;| C=hero_x
-   4045 3A 79 41      [13]  124 	ld a, (hero_y)		;|
-   4048 47            [ 4]  125 	ld b, a			;| B=hero_y
-                            126 
-   4049 CD 2B 41      [17]  127 	call cpct_getScreenPtr_asm
-                            128 
+                             79 
+   4033                      80 	not_move_right:
+                             81 
+   4033 C9            [10]   82 	ret
+                             83 
+                             84 ;============================================
+                             85 ;move Hero Left if is not at the screen limit
+                             86 ;DESTROYS: AF
+                             87 ;============================================
+   4034                      88 moveHeroLeft:
+   4034 3A B2 41      [13]   89 	ld a, (hero_x)
+   4037 FE 00         [ 7]   90 	cp #0 	;comprovamos que no se sale por la izquierda (X=0)
+   4039 28 04         [12]   91 	jr z, not_move_left
+   403B 3D            [ 4]   92 		dec a		;si no se sale de la pantalla se mueve
+   403C 32 B2 41      [13]   93 		ld (hero_x), a
+                             94 
+   403F                      95 	not_move_left:
+                             96 
+   403F C9            [10]   97 	ret
+                             98 
+                             99 ;============================================
+                            100 ;Start Hero Jump
+                            101 ;DESTROYS: AF
+                            102 ;============================================
+   4040                     103 startJump:
+   4040 3A B4 41      [13]  104 	ld a, (hero_jump)	;A=indice de la tabla de salto
+   4043 FE FF         [ 7]  105 	cp #-1			;Si no es -1 el salto ya esta activo
+   4045 C0            [11]  106 	ret nz			;salimos de la rutina sin hacer nada si el salto esta ya activo
+                            107 	;Jump is not active, activate it
+   4046 3E 00         [ 7]  108 	ld a, #0
+   4048 32 B4 41      [13]  109 	ld (hero_jump), a	;activo el salto metiendo en a un 0 -> primer indice de la tabla
+                            110 
+   404B C9            [10]  111 	ret
+                            112 
+                            113 ;============================================
+                            114 ;CHECK USER INPUT AND REACTS
+                            115 ;DESTROYS: 
+                            116 ;============================================
+   404C                     117 checkUserInput:
+                            118 	;/////////////////////////SE PODRÍA GUARDAR EN UN BYTE DE MEMORIA PARA NO HACER TANTOS CÁLCULOS
+                            119 	;Reads the status of keyboard and joysticks and stores it in the 10 bytes reserved as cpct_keyboardStatusBuffer
+                            120 	;Ver a que corresponde cada tecla del keyboardStatusBuffer en la documenacion de cpctelera
+                            121 	;scan whole keyboard
+   404C CD 81 41      [17]  122 	call cpct_scanKeyboard_asm
+                            123 
+                            124 	;Checks if a concrete key is pressed or not.
+                            125 	;input HL -> se mete en HL el codigo de la tecla que queremos comprobar 
+                            126 	;en el .include "keyboard/keyboard.s tenemos las constantes de todas las teclas, por lo tanto podemos tuilizar Key_D"
+                            127 	;check if d is pressed
+   404F 21 07 20      [10]  128 	ld hl, #Key_D	;;equ Key_D definido en el fichero keyboard.s que hemos incluido en la parte de _DATA .include "keyboard/keyboard.s"
+                            129 	;************************************************************
+                            130 	;Return value (for Assembly, L=A=key_status) <u8> false (0, if not pressed) or true (>0, if pressed).  Take into account that true is not 1, but any non-0 number.
+   4052 CD A4 40      [17]  131 	call cpct_isKeyPressed_asm 
+   4055 FE 00         [ 7]  132 	cp #0	;compara lo que hay en el acumuldor
+                            133 		;Cero si no se ha presionado
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 7.
 Hexadecimal [16-Bits]
 
 
 
-                            129 
-                            130 	;USING DRAW SOLID BOX CPCTELERA FUNCTION***************************** 
-                            131 	;Input Parameters (5 bytes)
-                            132 	;(2B DE) memory	Video memory pointer to the upper left box corner byte
-                            133 	;(1B A ) colour_pattern	1-byte colour pattern (in screen pixel format) to fill the box with
-                            134 	;(1B C ) width	Box width in bytes [1-64] (Beware!  not in pixels!)
-                            135 	;(1B B ) height	Box height in bytes (>0)
-                            136 
-                            137 	;la posicion de memorioa esta ahora en HL que es lo que nos devuelve cpct_getScreenPtr_asm
-                            138 	;habra que pasar hl a de 
-   404C EB            [ 4]  139 	ex de, hl 	;intercambia hl y de 
-   404D F1            [10]  140 	pop af 		;color elegido por el usuario
-                            141 	;ld a, #0x0F	;cyan
-   404E 01 02 08      [10]  142 	ld bc, #0x0802	;alto por ancho en pixeles 8x8
-   4051 CD 7E 40      [17]  143 	call cpct_drawSolidBox_asm
-                            144 
-   4054 C9            [10]  145 ret
+   4057 28 03         [12]  134 	jr z, d_not_pressed
+                            135 
+   4059 CD 28 40      [17]  136 		call moveHeroRight	;si la tecla se ha pulsado llamamos a la rutina moveHeroRight
+                            137 
+   405C                     138 	d_not_pressed:
+                            139 
+                            140 	;Ahora comprobamos si se ha pulado A
+   405C 21 08 20      [10]  141 	ld hl, #Key_A	
+   405F CD A4 40      [17]  142 	call cpct_isKeyPressed_asm 
+   4062 FE 00         [ 7]  143 	cp #0	;compara lo que hay en el acumuldor
+                            144 		;Cero si no se ha presionado
+   4064 28 03         [12]  145 	jr z, a_not_pressed
                             146 
-                            147 
-                            148 ;============================================
-                            149 ;MAIN PROGRAM ENTRY
-                            150 ;============================================
-   4055                     151 _main::
-                            152 
-   4055 3E 00         [ 7]  153 	ld a, #0x00
-   4057 CD 3D 40      [17]  154 	call drawhero 		;call drawhero function :)
+   4066 CD 34 40      [17]  147 		call moveHeroLeft	;si la tecla se ha pulsado llamamos a la rutina moveHeroLeft
+                            148 
+   4069                     149 	a_not_pressed:
+                            150 
+   4069 21 07 08      [10]  151 	ld hl, #Key_W
+   406C CD A4 40      [17]  152 	call cpct_isKeyPressed_asm
+   406F FE 00         [ 7]  153 	cp #0
+   4071 28 03         [12]  154 	jr z, w_not_pressed
                             155 
-   405A CD 00 40      [17]  156 	call jumpControl	;llamamos a la funcion que controla el salto del personaje 
-   405D CD 1F 40      [17]  157 	call checkUserInput	;check if user pressed keys
-                            158 
-   4060 3E FF         [ 7]  159 	ld a, #0xFF
-   4062 CD 3D 40      [17]  160 	call drawhero 		;call drawhero function :)
+   4073 CD 40 40      [17]  156 		call startJump		;si se ha pulsado W
+                            157 
+   4076                     158 	w_not_pressed:
+                            159 
+   4076 C9            [10]  160 ret	;a dibujar Hero en la nueva posicion
                             161 
-   4065 CD 76 40      [17]  162 	call cpct_waitVSYNC_asm	;Waits until CRTC produces vertical synchronization signal (VSYNC) and returns.
-                            163 
-   4068 18 EB         [12]  164 	jr _main
+                            162 ;============================================
+                            163 ;DRAW THE HERO
+                            164 ;INPUTS A=> Colour pattern 
+                            165 ;DESTROYS: AF, BC, DE, HL
+                            166 ;============================================
+   4077                     167 drawhero:
+   4077 F5            [11]  168 	push af 	;guardamos en la pila el patron de color para utilizarlo mas adelante
+                            169 	;USING GET SCREEN POINTER CPCTELERA FUNCTION*******************************
+                            170 	;Input Parameters (4 Bytes)
+                            171 	;(2B DE) screen_start	Pointer to the start of the screen (or a backbuffer)
+                            172 	;(1B C ) x	[0-79] Byte-aligned column starting from 0 (x coordinate,
+                            173 	;(1B B ) y	[0-199] row starting from 0 (y coordinate) in bytes)
+                            174 
+                            175 	;Return Value(HL)
+                            176 	;calculate screen position
+   4078 11 00 C0      [10]  177 	ld de, #0xC000		;video memoy pointer
+   407B 3A B2 41      [13]  178 	ld a, (hero_x)		;|
+   407E 4F            [ 4]  179 	ld c, a			;| C=hero_x
+   407F 3A B3 41      [13]  180 	ld a, (hero_y)		;|
+   4082 47            [ 4]  181 	ld b, a			;| B=hero_y
+                            182 
+   4083 CD 65 41      [17]  183 	call cpct_getScreenPtr_asm
+                            184 
+                            185 
+                            186 	;USING DRAW SOLID BOX CPCTELERA FUNCTION***************************** 
+                            187 	;Input Parameters (5 bytes)
+                            188 	;(2B DE) memory	Video memory pointer to the upper left box corner byte
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 8.
+Hexadecimal [16-Bits]
+
+
+
+                            189 	;(1B A ) colour_pattern	1-byte colour pattern (in screen pixel format) to fill the box with
+                            190 	;(1B C ) width	Box width in bytes [1-64] (Beware!  not in pixels!)
+                            191 	;(1B B ) height	Box height in bytes (>0)
+                            192 
+                            193 	;la posicion de memorioa esta ahora en HL que es lo que nos devuelve cpct_getScreenPtr_asm
+                            194 	;habra que pasar hl a de 
+   4086 EB            [ 4]  195 	ex de, hl 	;intercambia hl y de 
+   4087 F1            [10]  196 	pop af 		;color elegido por el usuario
+                            197 	;ld a, #0x0F	;cyan
+   4088 01 02 08      [10]  198 	ld bc, #0x0802	;alto por ancho en pixeles 8x8
+   408B CD B8 40      [17]  199 	call cpct_drawSolidBox_asm
+                            200 
+   408E C9            [10]  201 ret
+                            202 
+                            203 
+                            204 ;============================================
+                            205 ;MAIN PROGRAM ENTRY
+                            206 ;============================================
+   408F                     207 _main::
+                            208 
+   408F 3E 00         [ 7]  209 	ld a, #0x00
+   4091 CD 77 40      [17]  210 	call drawhero 		;call drawhero function :)
+                            211 
+   4094 CD 00 40      [17]  212 	call jumpControl	;llamamos a la funcion que controla el salto del personaje 
+   4097 CD 4C 40      [17]  213 	call checkUserInput	;check if user pressed keys
+                            214 
+   409A 3E FF         [ 7]  215 	ld a, #0xFF
+   409C CD 77 40      [17]  216 	call drawhero 		;call drawhero function :)
+                            217 
+   409F CD B0 40      [17]  218 	call cpct_waitVSYNC_asm	;Waits until CRTC produces vertical synchronization signal (VSYNC) and returns.
+                            219 
+   40A2 18 EB         [12]  220 	jr _main
