@@ -3,6 +3,14 @@
 ;declaracion de variables
 hero_x: .db  #39		;define byte
 hero_y:	.db  #80
+
+jump_pointer: .db #-1		;pointer to the jump_Table
+
+jump_Table:
+	.db #-3, #-3, #-2, #-2, #-1	;Jump Up
+	.db #00, #00			;Jump Stand
+	.db #01, #02, #02, #03, #03	;Jump down
+	.db #0x127			;Jump end label			
 ;declaracion de sprites
 groundTile01:
 	.db #0xF0, #0xF0
@@ -24,9 +32,69 @@ groundTile01:
 .include "keyboard/keyboard.s"
 
 ;Declaración de constantes
-BoxWidth = 0x02 
+BoxWidth = 2 
 
 .area _CODE
+;============================================
+;Move Right to the limit of the screen
+;DESTROYS: AF
+;============================================
+heroMoveRight:
+		ld a, (hero_x)		;Cargamos la posición actual de Hero en el acumulador
+		inc a			;Incrementamos el valor de hero_x
+		cp #79-BoxWidth		;Comparamos con la posición máxima en pantalla para X menos la anchura del recuadro
+		ret z			;si se ha alcanzado la posición máxima se sale de la rutina sin hacer nada mas
+
+		ld (hero_x), a		;si no, se actualiza la posición en la variable hero_x
+	ret
+;============================================
+;Move Left to the limit of the screen
+;DESTROYS: AF
+;============================================
+heroMoveLeft:
+		ld a, (hero_x)		;Cargamos la posición actual de Hero en el acumulador
+		dec a			;Decrementamos el valor de hero_x en uno
+		cp #0xFF		;Si la posición de hero_x (de su parte superior izquierda) es -1 salimos de la rutina sin hacer nada mas 
+		ret z	
+
+		ld (hero_x), a		;si no, se actualiza la posición en la variable hero_x
+	ret
+
+;============================================
+;When is active, Do the Hero Jump
+;DESTROYS: AF BC HL
+;============================================
+heroJump:
+	ld a, (jump_pointer)	;Load jump_pointer in the accumulator
+	cp #-1			;Compare with -1 
+	ret z			;If jump_pointer is setting in -1 routine ends
+		;if not
+		ld hl, #jump_Table	;Hl point to the first element of the jump_Table
+		ld c, a	
+		ld b, #00
+		add hl, bc		;HL now stores the Y movemnt of jump's memory position 
+
+		ld a, (hl)		;Load jump_Table,s Y movemnt in the accumulator
+		cp #0x127		;compare with ending jump's label
+		jr z, jumping_end	;jum is end, set jump_pointer to -1
+
+			;if not -> now a stores correspondent y movemnt of the jump
+			ld b, a		;
+			ld a, (hero_y)	;
+			add b		;
+			ld (hero_y), a	;update new hero_y position
+
+			ld a, (jump_pointer)	;
+			inc a			;
+			ld (jump_pointer), a	;update jump_pointer to the next position 
+
+
+	ret
+
+	jumping_end:			;jum is end, set jump_pointer to -1
+		ld a, #-1
+		ld (jump_pointer), a	;set jump_pointer to -1
+		ret
 
 ;============================================
 ;CHECK USER INPUT AND REACTS
@@ -36,36 +104,37 @@ checkUserInput:
 
 	call cpct_scanKeyboard_asm	;CPCTelera routine that scans whole keyboard
 
-	ld hl, #Key_D				;Input for cpct_isKeyPressed_asm // constant #Key_D include in keyboard/keyboard.s
+	ld hl, #Key_D			;Input for cpct_isKeyPressed_asm // constant #Key_D include in keyboard/keyboard.s
 	call cpct_isKeyPressed_asm 	;Outputs in A & L = 0 if not pressed or 0> if not pressed
 	cp #0
-	jr z, d_not_pressed			;jump to d_not_pressed
+	jr z, d_not_pressed		;jump to d_not_pressed
 
-		ld a, (hero_x)
-		inc a
-		add a, #BoxWidth 	;al final de drawhero popeamos bc para ulizar la anchura guardada en b en esta rutina
-		cp #79		;maximo número de bytes en modo 0 (de 0 a 79)
-		jp nc, d_not_pressed
-		sub a, #BoxWidth
-		ld (hero_x), a
+		call heroMoveRight	;if K is pressed call heroMoveRight
 	
-
-
 	d_not_pressed:
+
 	; se repite para la letra A #key_A 
 	ld hl, #Key_A	;Constante incluida en keyboard.s
 	call cpct_isKeyPressed_asm
 	cp #0 	;si es cero no se ha presionado
 	jr z, a_not_pressed
-		ld a, (hero_x)
-		dec a
-		cp #0xFF
-		jp z, a_not_pressed	;si es menor que 0 hay acarreo por lo tanto hero_x se queda ne la misma posicion
-					;no actualizamos 
-
-		ld (hero_x), a
+		call heroMoveLeft
 
 	a_not_pressed:
+
+	ld hl, #Key_W	;Constante incluida en keyboard.s
+	call cpct_isKeyPressed_asm
+	cp #0 				;if the accumulator is 0 the key is not pressed
+	jr z, w_not_pressed
+		ld a, (jump_pointer)
+		cp #-1
+		jr nz, jump_is_taking_place	;if jump_pointer stores a number different os -1 the jump is taking place
+			;if not we can activate the jump setting jump_pointer to 0
+			inc a
+			ld (jump_pointer), a
+
+		jump_is_taking_place:
+	w_not_pressed:
 ret	;a dibujar Hero en la nueva posicion
 
 ;============================================
@@ -151,12 +220,12 @@ _main::
 	call drawGround
 
 	gameLoop:
-	ld a, #0x00
+	ld a, #0x00		;delete hero -> background color
 	call drawhero 		;call drawhero function :)
 
+	call heroJump		;If hero is jumpling update Y position
 	call checkUserInput	;check if user pressed keys
-
-	ld a, #0xFF
+	ld a, #0xFF		;select Box color of Hero
 	call drawhero 		;call drawhero function :)
 
 	call cpct_waitVSYNC_asm	;Waits until CRTC produces vertical synchronization signal (VSYNC) and returns.

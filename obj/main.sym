@@ -33,19 +33,22 @@ Symbol Table
     Key_Shif=  2002     |     Key_Slas=  4003     |     Key_Spac=  8005 
     Key_T   =  0806     |     Key_Tab =  1008     |     Key_U   =  0405 
     Key_V   =  8006     |     Key_W   =  0807     |     Key_X   =  8007 
-    Key_Y   =  0805     |     Key_Z   =  8008     |   1 _cpct_ke   0010 GR
-  0 _main      006D GR  |   0 a_not_pr   0033 R   |   0 checkUse   0000 R
+    Key_Y   =  0805     |     Key_Z   =  8008     |   1 _cpct_ke   001E GR
+  0 _main      00AA GR  |   0 a_not_pr   005B R   |   0 checkUse   003E R
     cpct_dra   **** GX  |     cpct_dra   **** GX  |     cpct_get   **** GX
     cpct_isK   **** GX  |     cpct_sca   **** GX  |     cpct_wai   **** GX
-  0 d_not_pr   001D R   |   0 drawGrou   004C R   |   0 drawhero   0034 R
-  0 gameLoop   0070 R   |   0 groundBu   004E R   |   1 groundTi   0002 R
-  1 hero_x     0000 R   |   1 hero_y     0001 R
+  0 d_not_pr   004E R   |   0 drawGrou   0089 R   |   0 drawhero   0071 R
+  0 gameLoop   00AD R   |   0 groundBu   008B R   |   1 groundTi   0010 R
+  0 heroJump   0016 R   |   0 heroMove   000B R   |   0 heroMove   0000 R
+  1 hero_x     0000 R   |   1 hero_y     0001 R   |   1 jump_Tab   0003 R
+  0 jump_is_   0070 R   |   1 jump_poi   0002 R   |   0 jumping_   0038 R
+  0 w_not_pr   0070 R
 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
 Hexadecimal [16-Bits]
 
 Area Table
 
-   0 _CODE      size   82   flags    0
-   1 _DATA      size   1A   flags    0
+   0 _CODE      size   C2   flags    0
+   1 _DATA      size   28   flags    0
 
