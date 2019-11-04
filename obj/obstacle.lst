@@ -1,0 +1,115 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 1.
+Hexadecimal [16-Bits]
+
+
+
+                              1 .area _CODE
+                              2 
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
+Hexadecimal [16-Bits]
+
+
+
+                              3 .include "cpctelera.h.s"
+                              1 ;=======================================
+                              2 ;=======================================
+                              3 ;OBSTACLE PUBLIC FUNCTIONS
+                              4 ;=======================================
+                              5 ;=======================================
+                              6 
+                              7 .globl cpct_drawSolidBox_asm
+                              8 .globl cpct_getScreenPtr_asm
+                              9 .globl cpct_scanKeyboard_asm
+                             10 .globl cpct_isKeyPressed_asm
+                             11 .globl cpct_waitVSYNC_asm
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 3.
+Hexadecimal [16-Bits]
+
+
+
+                              4 ;=======================================================
+                              5 ;=======================================================
+                              6 ;PRIVATE DATA
+                              7 ;======================================================
+                              8 ;======================================================
+   0000 4F                    9 obs_x: .db #80-1
+   0001 52                   10 obs_y: .db #82
+                             11 
+                             12 ;=======================================================
+                             13 ;=======================================================
+                             14 ;PUBLIC FUNCTIONS
+                             15 ;======================================================
+                             16 ;======================================================
+                             17 
+                             18 ;============================================
+                             19 ;ERASES THE OBSTACLE
+                             20 ;DESTROYS: 
+                             21 ;============================================
+   0002                      22 obstacle_erase::
+   0002 3E 00         [ 7]   23 	ld a, #0x00			;background color
+   0004 CD 1A 00      [17]   24 	call drawObstacle 		;call drawObstacle function :)
+                             25 
+   0007 C9            [10]   26 	ret
+                             27 
+                             28 ;============================================
+                             29 ;DRAW THE OBSTACLE 
+                             30 ;DESTROYS: 
+                             31 ;============================================
+   0008                      32 obstacle_draw::
+   0008 3E F0         [ 7]   33 	ld a, #0xF0			;cyan
+   000A CD 1A 00      [17]   34 	call drawObstacle 		;call drawObstacle function :)
+                             35 
+   000D C9            [10]   36 	ret
+                             37 
+                             38 ;============================================
+                             39 ;UPDATES THE OBSTACLE
+                             40 ;DESTROYS: 
+                             41 ;============================================
+   000E                      42 obstacle_update::
+                             43 	;Move obstacle to the left
+   000E 3A 00 00      [13]   44 	ld a, (obs_x)
+   0011 3D            [ 4]   45 	dec a
+   0012 20 02         [12]   46 	jr nz, not_restart_x	;dec a también activa los flags, por lo tanto mientras no sea cero no se resetea su posición
+                             47 
+   0014 3E 4F         [ 7]   48 		ld a, #80-1	;start location
+                             49 
+   0016                      50 	not_restart_x:
+   0016 32 00 00      [13]   51 	ld (obs_x), a		;update obs_x position
+                             52 
+   0019 C9            [10]   53 	ret
+                             54 ;=======================================================
+                             55 ;=======================================================
+                             56 ;PRIVATE FUNCTIONS
+                             57 ;======================================================
+                             58 ;======================================================
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 4.
+Hexadecimal [16-Bits]
+
+
+
+                             59 
+                             60 ;============================================
+                             61 ;DRAW THE OBSTACLE
+                             62 ;INPUTS A=> Colour pattern 
+                             63 ;DESTROYS: AF, BC, DE, HL
+                             64 ;============================================
+   001A                      65 drawObstacle:
+   001A F5            [11]   66 	push af 	;guardamos en la pila el patron de color para utilizarlo mas adelante
+                             67 
+                             68 	;calculate screen position
+                             69 	;cpct_getScreenPtr_asm inputs
+   001B 11 00 C0      [10]   70 	ld de, #0xC000		;video memoy pointer
+   001E 3A 00 00      [13]   71 	ld a, (obs_x)		;|
+   0021 4F            [ 4]   72 	ld c, a			;| C=obs_x
+   0022 3A 01 00      [13]   73 	ld a, (obs_y)		;|
+   0025 47            [ 4]   74 	ld b, a			;| B=obs_y
+   0026 CD 00 00      [17]   75 	call cpct_getScreenPtr_asm
+                             76 
+                             77 	;draw a box 
+                             78 	;cpct_drawSolidBox_asm inputs
+   0029 EB            [ 4]   79 	ex de, hl 	;intercambia hl y de 
+   002A F1            [10]   80 	pop af 		;color elegido por el usuario
+   002B 01 01 04      [10]   81 	ld bc, #0x0401	;alto por ancho en pixeles 4x4
+   002E CD 00 00      [17]   82 	call cpct_drawSolidBox_asm
+                             83 
+   0031 C9            [10]   84 ret
