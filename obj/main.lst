@@ -20,6 +20,7 @@ Hexadecimal [16-Bits]
                               6 .globl hero_erase
                               7 .globl hero_update
                               8 .globl hero_draw
+                              9 .globl hero_getPtrHL
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 3.
 Hexadecimal [16-Bits]
 
@@ -34,6 +35,7 @@ Hexadecimal [16-Bits]
                               6 .globl obstacle_erase
                               7 .globl obstacle_update
                               8 .globl obstacle_draw
+                              9 .globl obstacle_checkCollion
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 4.
 Hexadecimal [16-Bits]
 
@@ -68,9 +70,16 @@ Hexadecimal [16-Bits]
    0006 CD 00 00      [17]   16 	call hero_update
    0009 CD 00 00      [17]   17 	call obstacle_update
                              18 
-   000C CD 00 00      [17]   19 	call hero_draw
-   000F CD 00 00      [17]   20 	call obstacle_draw
-                             21 
-   0012 CD 00 00      [17]   22 	call cpct_waitVSYNC_asm	;Waits until CRTC produces vertical synchronization signal (VSYNC) and returns.
-                             23 
-   0015 18 E9         [12]   24 	jr _main
+   000C CD 00 00      [17]   19 	call hero_getPtrHL
+   000F CD 00 00      [17]   20 	call obstacle_checkCollion
+   0012 32 00 C0      [13]   21 	ld (0xC000), a 			;Draw if collision in the first video memory byte (FF if yes, 00 if no)
+   0015 32 01 C0      [13]   22 	ld (0xC001), a 			;|
+   0018 32 02 C0      [13]   23 	ld (0xC002), a 			;|
+   001B 32 03 C0      [13]   24 	ld (0xC003), a 			;|enlarge collision bar
+                             25 
+   001E CD 00 00      [17]   26 	call hero_draw
+   0021 CD 00 00      [17]   27 	call obstacle_draw
+                             28 
+   0024 CD 00 00      [17]   29 	call cpct_waitVSYNC_asm	;Waits until CRTC produces vertical synchronization signal (VSYNC) and returns.
+                             30 
+   0027 18 D7         [12]   31 	jr _main

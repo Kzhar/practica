@@ -1,6 +1,7 @@
 XL2
-H 1 areas 4 global symbols
+H 1 areas 5 global symbols
 S hero_update Ref0000
+S hero_getPtrHL Ref0000
 S hero_erase Ref0000
 S .__.ABS. Def0000
 S hero_draw Ref0000

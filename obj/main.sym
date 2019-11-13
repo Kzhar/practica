@@ -7,14 +7,14 @@ Symbol Table
     .__.H$L.=  0000 L   |   0 _main      0000 GR  |     cpct_dra   **** GX
     cpct_get   **** GX  |     cpct_isK   **** GX  |     cpct_sca   **** GX
     cpct_wai   **** GX  |     hero_dra   **** GX  |     hero_era   **** GX
-    hero_upd   **** GX  |     obstacle   **** GX  |     obstacle   **** GX
-    obstacle   **** GX
+    hero_get   **** GX  |     hero_upd   **** GX  |     obstacle   **** GX
+    obstacle   **** GX  |     obstacle   **** GX  |     obstacle   **** GX
 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
 Hexadecimal [16-Bits]
 
 Area Table
 
-   0 _CODE      size   17   flags    0
+   0 _CODE      size   29   flags    0
    1 _DATA      size    0   flags    0
 

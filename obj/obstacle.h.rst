@@ -11,3 +11,4 @@ Hexadecimal [16-Bits]
                               6 .globl obstacle_erase
                               7 .globl obstacle_update
                               8 .globl obstacle_draw
+                              9 .globl obstacle_checkCollion

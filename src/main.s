@@ -16,6 +16,13 @@ _main::
 	call hero_update
 	call obstacle_update
 
+	call hero_getPtrHL
+	call obstacle_checkCollion
+	ld (0xC000), a 			;Draw if collision in the first video memory byte (FF if yes, 00 if no)
+	ld (0xC001), a 			;|
+	ld (0xC002), a 			;|
+	ld (0xC003), a 			;|enlarge collision bar
+
 	call hero_draw
 	call obstacle_draw
 

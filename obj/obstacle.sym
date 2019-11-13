@@ -6,14 +6,15 @@ Symbol Table
     .__.$$$.=  2710 L   |     .__.ABS.=  0000 G   |     .__.CPU.=  0000 L
     .__.H$L.=  0000 L   |     cpct_dra   **** GX  |     cpct_get   **** GX
     cpct_isK   **** GX  |     cpct_sca   **** GX  |     cpct_wai   **** GX
-  0 drawObst   001A R   |   0 not_rest   0016 R   |   0 obs_x      0000 R
-  0 obs_y      0001 R   |   0 obstacle   0008 GR  |   0 obstacle   0002 GR
-  0 obstacle   000E GR
+  0 drawObst   0041 R   |   0 no_colli   003D R   |   0 not_rest   0018 R
+  0 obs_h      0003 R   |   0 obs_w      0002 R   |   0 obs_x      0000 R
+  0 obs_y      0001 R   |   0 obstacle   001C GR  |   0 obstacle   000A GR
+  0 obstacle   0004 GR  |   0 obstacle   0010 GR
 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
 Hexadecimal [16-Bits]
 
 Area Table
 
-   0 _CODE      size   32   flags    0
+   0 _CODE      size   59   flags    0
 

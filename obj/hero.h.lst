@@ -11,3 +11,4 @@ Hexadecimal [16-Bits]
                               6 .globl hero_erase
                               7 .globl hero_update
                               8 .globl hero_draw
+                              9 .globl hero_getPtrHL

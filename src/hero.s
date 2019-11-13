@@ -6,10 +6,13 @@
 ;======================================================
 ;======================================================
 ;declaracion de variables
-hero_x: 	.db 	#39		;;define byte
-hero_y:		.db 	#80
+hero_x: 	.db 	#39		;|
+hero_y:		.db 	#80		;|hero position 
+hero_w:		.db     #2		;|
+hero_h:		.db 	#8		;|hero widht and height in bytes
 
 hero_jump:	.db 	#-1	;variable de control del array de salto de Hero
+
 ;jump Table
 jumpTable:
 	.db #-3, #-2, #-1, #-1
@@ -55,6 +58,15 @@ hero_update::
 	call jumpControl	;llamamos a la funcion que controla el salto del personaje 
 	call checkUserInput	;check if user pressed keys
 
+	ret
+
+;============================================
+;GETS A POINTER TO HERO DATA IN HL
+;DESTROYS: HL
+;RETURNS: Pointer to HERO DATA
+;============================================
+hero_getPtrHL::
+	ld hl, #hero_x	;hl points to the fisrt data of hero (hero_x, hero_y, hero_w, hero_h)
 	ret
 
 ;=======================================================
