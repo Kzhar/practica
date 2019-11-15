@@ -8,10 +8,12 @@
 -l /home/Diego/cpctelera/cpctelera/cpctelera.lib
 -l z80
 obj/obstacle.rel
+obj/sprite.h.rel
 obj/main.rel
 obj/obstacle.h.rel
 obj/hero.rel
 obj/cpctelera.h.rel
+obj/sprite.rel
 obj/hero.h.rel
 
 -e

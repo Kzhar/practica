@@ -14,3 +14,4 @@ Hexadecimal [16-Bits]
                               9 .globl cpct_scanKeyboard_asm
                              10 .globl cpct_isKeyPressed_asm
                              11 .globl cpct_waitVSYNC_asm
+                             12 .globl cpct_drawSprite_asm

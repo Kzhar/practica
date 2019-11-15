@@ -9,16 +9,16 @@ Area                                    Addr        Size        Decimal Bytes (A
       -----  --------------------------------   ------------------------
      00000000  .__.ABS.                           cpct_keyboard
      00000000  l__DATA                         
-     00000252  l__CODE                         
+     0000032F  l__CODE                         
      00004000  s__CODE                         
-     00004252  s__DATA                         
+     0000432F  s__DATA                         
 
 ASxxxx Linker V03.00 + NoICE + sdld,  page 2.
 Hexadecimal  [32-Bits]
 
 Area                                    Addr        Size        Decimal Bytes (Attributes)
 --------------------------------        ----        ----        ------- ----- ------------
-_CODE                               00004000    00000252 =         594. bytes (REL,CON)
+_CODE                               00004000    0000032F =         815. bytes (REL,CON)
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
@@ -27,30 +27,36 @@ _CODE                               00004000    00000252 =         594. bytes (R
      00004010  obstacle_update                    
      0000401C  obstacle_checkCollion              
      00004059  _main                              
-     00004094  _cpct_keyboardStatusBuffer         cpct_keyboard
-     0000409E  hero_erase                         cpct_keyboard
-     000040A4  hero_draw                          cpct_keyboard
-     000040AA  hero_update                        cpct_keyboard
-     000040B1  hero_getPtrHL                      cpct_keyboard
-     00004144  _cpct_isKeyPressed                 cpct_keyboard
-     00004144  cpct_isKeyPressed_asm              cpct_keyboard
-     00004150  _cpct_waitVSYNC                    cpct_video
-     00004150  cpct_waitVSYNC_asm                 cpct_video
-     00004158  cpct_drawSolidBox_asm              cpct_sprites
-     00004204  _cpct_mode_rom_status              cpct_firmware
-     00004205  cpct_getScreenPtr_asm              cpct_video
-     00004221  _cpct_scanKeyboard                 cpct_keyboard
-     00004221  cpct_scanKeyboard_asm              cpct_keyboard
+     00004096  _cpct_keyboardStatusBuffer         cpct_keyboard
+     000040A0  hero_erase                         cpct_keyboard
+     000040AB  hero_draw                          cpct_keyboard
+     000040B6  hero_update                        cpct_keyboard
+     000040BD  hero_getPtrHL                      cpct_keyboard
+     00004151  hero_sprite01                      
+     00004161  hero_sprite02                      
+     00004171  delete_sprite                      
+     00004181  _cpct_isKeyPressed                 cpct_keyboard
+     00004181  cpct_isKeyPressed_asm              cpct_keyboard
+     0000418D  cpct_drawSprite_asm                cpct_sprites
+     0000422D  _cpct_waitVSYNC                    cpct_video
+     0000422D  cpct_waitVSYNC_asm                 cpct_video
+     00004235  cpct_drawSolidBox_asm              cpct_sprites
+     000042E1  _cpct_mode_rom_status              cpct_firmware
+     000042E2  cpct_getScreenPtr_asm              cpct_video
+     000042FE  _cpct_scanKeyboard                 cpct_keyboard
+     000042FE  cpct_scanKeyboard_asm              cpct_keyboard
 
 ASxxxx Linker V03.00 + NoICE + sdld,  page 3.
 
 Files Linked                              [ module(s) ]
 
 obj/obstacle.rel                          [  ]
+obj/sprite.h.rel                          [  ]
 obj/main.rel                              [  ]
 obj/obstacle.h.rel                        [  ]
 obj/hero.rel                              [ cpct_keyboard ]
 obj/cpctelera.h.rel                       [  ]
+obj/sprite.rel                            [  ]
 obj/hero.h.rel                            [  ]
 
 
@@ -58,6 +64,8 @@ Libraries Linked                          [ object file ]
 
 /home/Diego/cpctelera/cpctelera/cpctelera.lib
                                           [ cpct_isKeyPressed.rel ]
+/home/Diego/cpctelera/cpctelera/cpctelera.lib
+                                          [ cpct_drawSprite_asmbindings.rel ]
 /home/Diego/cpctelera/cpctelera/cpctelera.lib
                                           [ cpct_waitVSYNC.rel ]
 /home/Diego/cpctelera/cpctelera/cpctelera.lib

@@ -1,6 +1,7 @@
 XL2
-H 1 areas 6 global symbols
+H 1 areas 7 global symbols
 S cpct_isKeyPressed_asm Ref0000
+S cpct_drawSprite_asm Ref0000
 S .__.ABS. Def0000
 S cpct_waitVSYNC_asm Ref0000
 S cpct_drawSolidBox_asm Ref0000

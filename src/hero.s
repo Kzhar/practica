@@ -5,13 +5,32 @@
 ;PRIVATE DATA
 ;======================================================
 ;======================================================
-;declaracion de variables
-hero_x: 	.db 	#39		;|
-hero_y:		.db 	#80		;|hero position 
-hero_w:		.db     #2		;|
-hero_h:		.db 	#8		;|hero widht and height in bytes
+;declaración de constantes
+.equ Ent_x, 0
+.equ Ent_y, 1
+.equ Ent_w, 2
+.equ Ent_h, 3
+.equ Ent_jump, 4
+.equ Ent_sptr01, 5
+;declaración de macro
+.macro defineEntity name, x, y, w, h, spr 	;define a macro to create entities
+	name'_data:
+		name'_x: 		.db 	x		;|
+		name'_y:		.db 	y		;|hero position 
+		name'_w:		.db     w		;|
+		name'_h:		.db 	h		;|hero widht and height in bytes
+		name'_jump:		.db 	#-1	;variable de control del array de salto de Hero
+		name'_sprt01:		.dw 	spr
+.endm	;end of the macro
 
-hero_jump:	.db 	#-1	;variable de control del array de salto de Hero
+defineEntity hero, #39, #80, #2, #8, #hero_sprite01	;define hero as in the next coment lines
+;hero_data:
+;	hero_x: 	.db 	#39		;|
+;	hero_y:		.db 	#80		;|hero position 
+;	hero_w:		.db     #2		;|
+;	hero_h:		.db 	#8		;|hero widht and height in bytes
+;	hero_jump:	.db 	#-1	;variable de control del array de salto de Hero
+;	hero_sprt01:	.dw 	#hero_sprite01
 
 ;jump Table
 jumpTable:
@@ -24,6 +43,8 @@ jumpTable:
 ;cpctelera symbols
 .include "keyboard/keyboard.s"
 .include "cpctelera.h.s"
+;SPRITE DATA
+.include "sprite.h.s"
 ;=======================================================
 ;=======================================================
 ;PUBLIC FUNCTIONS
@@ -35,7 +56,9 @@ jumpTable:
 ;DESTROYS: 
 ;============================================
 hero_erase::
-	ld a, #0x00
+	;ld a, #0x00
+	ld hl, #delete_sprite
+	ld ix, #hero_data	;pointer to th entity to draw
 	call drawhero 		;call drawhero function :)
 
 	ret
@@ -45,7 +68,9 @@ hero_erase::
 ;DESTROYS: 
 ;============================================
 hero_draw::
-	ld a, #0xFF
+	;ld a, #0xFF
+	ld hl, (hero_sprt01)
+	ld ix, #hero_data	;pointer to th entity to draw
 	call drawhero 		;call drawhero function :)
 
 	ret
@@ -209,43 +234,32 @@ checkUserInput:
 ret	;a dibujar Hero en la nueva posicion
 
 ;============================================
-;DRAW THE HERO
-;INPUTS A=> Colour pattern 
+;DRAWS ANYTHING
+;INPUTS 
+;	A  => Colour pattern 
+;	IX => Pointer to entity data (0 = X, 1 = Y, 2 = Width, 3 = Height) 
 ;DESTROYS: AF, BC, DE, HL
 ;============================================
 drawhero:
-	push af 	;guardamos en la pila el patron de color para utilizarlo mas adelante
-	;USING GET SCREEN POINTER CPCTELERA FUNCTION*******************************
-	;Input Parameters (4 Bytes)
-	;(2B DE) screen_start	Pointer to the start of the screen (or a backbuffer)
-	;(1B C ) x	[0-79] Byte-aligned column starting from 0 (x coordinate,
-	;(1B B ) y	[0-199] row starting from 0 (y coordinate) in bytes)
-
+	;push af 	;guardamos en la pila el patron de color para utilizarlo mas adelante
+	push hl
 	;Return Value(HL)
 	;calculate screen position
 	ld de, #0xC000		;video memoy pointer
-	ld a, (hero_x)		;|
-	ld c, a			;| C=hero_x
-	ld a, (hero_y)		;|
-	ld b, a			;| B=hero_y
+	ld c, Ent_x(ix)		;| C=Entity_x
+	ld b, Ent_y(ix)		;| B=Entity_y
 
 	call cpct_getScreenPtr_asm
 
-
-	;USING DRAW SOLID BOX CPCTELERA FUNCTION***************************** 
-	;Input Parameters (5 bytes)
-	;(2B DE) memory	Video memory pointer to the upper left box corner byte
-	;(1B A ) colour_pattern	1-byte colour pattern (in screen pixel format) to fill the box with
-	;(1B C ) width	Box width in bytes [1-64] (Beware!  not in pixels!)
-	;(1B B ) height	Box height in bytes (>0)
-
 	;la posicion de memorioa esta ahora en HL que es lo que nos devuelve cpct_getScreenPtr_asm
 	;habra que pasar hl a de 
-	ex de, hl 	;intercambia hl y de 
-	pop af 		;color elegido por el usuario
-	;ld a, #0x0F	;cyan
-	ld bc, #0x0802	;alto por ancho en pixeles 8x8
-	call cpct_drawSolidBox_asm
+	ex de, hl 		;intercambia hl y de 
+	ld c, Ent_w(ix)		;C=Entity_w (width)
+	ld b, Ent_h(ix)		;B=Entity_h (height)
+	;pop af 
+	pop hl			;color elegido por el usuario
+	;call cpct_drawSolidBox_asm
+	call cpct_drawSprite_asm
 
 ret
 

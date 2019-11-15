@@ -162,13 +162,13 @@ Hexadecimal [16-Bits]
    4048 4F            [ 4]  126 	ld c, a			;| C=obs_x
    4049 3A 01 40      [13]  127 	ld a, (obs_y)		;|
    404C 47            [ 4]  128 	ld b, a			;| B=obs_y
-   404D CD 05 42      [17]  129 	call cpct_getScreenPtr_asm
+   404D CD E2 42      [17]  129 	call cpct_getScreenPtr_asm
                             130 
                             131 	;draw a box 
                             132 	;cpct_drawSolidBox_asm inputs
    4050 EB            [ 4]  133 	ex de, hl 	;intercambia hl y de 
    4051 F1            [10]  134 	pop af 		;color elegido por el usuario
    4052 01 01 04      [10]  135 	ld bc, #0x0401	;alto por ancho en pixeles 4x4
-   4055 CD 58 41      [17]  136 	call cpct_drawSolidBox_asm
+   4055 CD 35 42      [17]  136 	call cpct_drawSolidBox_asm
                             137 
    4058 C9            [10]  138 ret
